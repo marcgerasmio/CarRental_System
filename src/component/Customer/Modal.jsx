@@ -1,6 +1,6 @@
 import CarList from "./CarList.jsx";
 
-const Modal = ({ cars }) => {
+const Modal = ({ cars, seller }) => {
   return (
     <dialog id="carModal" className="modal font-mono">
       <div className="modal-box relative max-w-4xl">
@@ -10,10 +10,9 @@ const Modal = ({ cars }) => {
           </button>
         </form>
         <div className="mb-5">
-          <p className="text-lg font-bold">Ford Philippines</p>
-          <p>J C Aquino Ave, Butuan City, 8600</p>
-          <p>Opens at 8:00AM - 6PM MON - FRI</p>
-          <p>09518149753</p>
+          <p className="text-lg font-bold">{seller.seller_name}</p>
+          <p>{seller.opens_at}</p>
+          <p>{seller.tel_number}</p>
         </div>
         <hr />
         <CarList cars={cars} />

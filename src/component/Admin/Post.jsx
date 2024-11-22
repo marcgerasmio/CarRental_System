@@ -1,62 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect} from "react";
 import { NavLink } from "react-router-dom";
-
-const cars = [
-  {
-    id: 1,
-    name: "Toyota Hatchback",
-    image: "https://placehold.co/600x400",
-    category: "Medium Car",
-    seats: 4,
-    transmission: "manual",
-    price: 2500,
-  },
-  {
-    id: 2,
-    name: "McLaren Sports",
-    image: "https://placehold.co/600x400",
-    category: "Medium Car",
-    seats: 2,
-    transmission: "Automatic",
-    price: 4500,
-  },
-  {
-    id: 3,
-    name: "McLaren GT",
-    image: "https://placehold.co/600x400",
-    category: "Medium Car",
-    seats: 2,
-    transmission: "Automatic",
-    price: 5000,
-  },
-  {
-    id: 4,
-    name: "Ferrari GT",
-    image: "https://placehold.co/600x400",
-    category: "Medium Car",
-    seats: 2,
-    transmission: "Automatic",
-    price: 5000,
-  },
-  {
-    id: 5,
-    name: "Chevrolet Camaro",
-    image: "https://placehold.co/600x400",
-    category: "Medium Car",
-    seats: 2,
-    transmission: "Manual",
-    price: 2500,
-  },
-  {
-    id: 6,
-    name: "Ford Mustang",
-    image: "https://placehold.co/600x400",
-    category: "Medium Car",
-    seats: 2,
-    transmission: "Manual",
-    price: 2500,
-  },
-];
+import supabase from "../supabaseClient";
 
 const CarCard = ({ car, onClick }) => (
   <div
@@ -66,7 +10,7 @@ const CarCard = ({ car, onClick }) => (
     <img alt={car.name} className="h-48 w-full object-cover" src={car.image} />
     <div className="p-4">
       <div className="space-y-1 text-sm">
-        <p>Unit Model: {car.name}</p>
+        <p>Unit Model: {car.car_name}</p>
         <p>Category: {car.category}</p>
         <p>Seat/s: {car.seats} people</p>
         <p>Transmission: {car.transmission}</p>
@@ -80,9 +24,123 @@ const Post = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCar, setSelectedCar] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [cars, setCars] = useState([]);
+
+  const name = sessionStorage.getItem("name");
+  const [category, setCategory] = useState('');
+  const [car_name, setCarName] = useState('');
+  const [seats, setSeats] = useState('');
+  const [transmission, setTransmission] = useState('');
+  const [price, setPrice] = useState('');
+  const [image, setImage] = useState(null);
+  const [file, setFile] = useState('');
+
+
+  const fetch_cars = async () => {
+    try {
+      const { error, data } = await supabase
+        .from('Cars')
+        .select('*')
+        .eq('seller_name', name)
+
+      if (error) throw error;
+      setCars(data);
+      console.log(data);
+    } catch (error) {
+      alert("An unexpected error occurred.");
+      console.error('Error during fetching history:', error.message);
+    }
+  };
+
+  const add_car = async () => {
+    const { data, error } = await supabase
+      .from('Cars')
+      .insert([
+        {
+        seller_name : name,
+        car_name,
+        category,
+        seats,
+        transmission,
+        price,
+        image,
+        status: 'Available',
+        },
+      ])
+    if (error) {
+      console.error('Error inserting data:', error);
+      alert('Error inserting data');
+    } else {
+      console.log('Data inserted successfully:', data);
+      window.location.reload();
+    }
+  };
+
+
+  const handleImage = async (e) => {
+    const selectedFile = e.target.files[0];
+    setFile(selectedFile);
+    if (selectedFile) {
+      try {
+        const filePath = `${selectedFile.name}`;
+        const { data, error } = await supabase.storage
+          .from("Cars")
+          .upload(filePath, selectedFile);
+        if (error) {
+          throw error;
+        }
+        const { data: publicURL, error: urlError } = supabase.storage
+          .from("Cars")
+          .getPublicUrl(filePath);
+        if (urlError) {
+          throw urlError;
+        }
+        console.log("Image URL:", publicURL.publicUrl);
+        setImage(publicURL.publicUrl);
+      } catch (error) {
+        console.error("Error uploading image:", error);
+        alert("Error uploading image: " + error.message);
+      }
+    }
+  };
+
+  const delete_car = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('Cars')
+        .delete()
+        .eq('id', selectedCar.id);
+  
+      if (error) {
+        console.error('Error deleting data:', error.message);
+      } else {
+        delete_booking();
+      }
+    } catch (error) {
+      console.error('Unexpected error:', error.message);
+    }
+  };
+
+  const delete_booking = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('Booking')
+        .delete()
+        .eq('car_name', selectedCar.car_name);
+  
+      if (error) {
+        console.error('Error deleting data:', error.message);
+      } else {
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error('Unexpected error:', error.message);
+    }
+  };
+  
 
   const filteredReservations = cars.filter((car) =>
-    car.name.toLowerCase().includes(searchQuery.toLowerCase())
+    car.car_name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const openModal = (car) => {
@@ -105,6 +163,11 @@ const Post = () => {
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
+
+  useEffect(() => {
+    fetch_cars();
+  }, []);
+
 
   return (
     <>
@@ -222,6 +285,23 @@ const Post = () => {
           </form>
           <h3 className="text-xl font-bold mt-3">| PROVIDE CAR DETAILS</h3>
           <div className="mt-4">
+          <label className="input input-bordered flex items-center gap-2 mb-2">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 16 16"
+                fill="currentColor"
+                className="h-4"
+              >
+                <path d="M2.5 3A1.5 1.5 0 0 0 1 4.5v.793c.026.009.051.02.076.032L7.674 8.51c.206.1.446.1.652 0l6.598-3.185A.755.755 0 0 1 15 5.293V4.5A1.5 1.5 0 0 0 13.5 3h-11Z" />
+                <path d="M15 6.954 8.978 9.86a2.25 2.25 0 0 1-1.956 0L1 6.954V11.5A1.5 1.5 0 0 0 2.5 13h11a1.5 1.5 0 0 0 1.5-1.5V6.954Z" />
+              </svg>
+              <input
+                type="text"
+                className="grow text-gray-600"
+                placeholder="Car Name"
+                onChange={(e) => setCarName(e.target.value)}
+              />
+            </label>
             <label className="input input-bordered flex items-center gap-2 mb-2">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -236,6 +316,7 @@ const Post = () => {
                 type="text"
                 className="grow text-gray-600"
                 placeholder="Category"
+                onChange={(e) => setCategory(e.target.value)}
               />
             </label>
             <label className="input input-bordered flex items-center gap-2 mb-2">
@@ -252,6 +333,7 @@ const Post = () => {
                 type="text"
                 className="grow text-gray-600"
                 placeholder="Seats"
+                onChange={(e) => setSeats(e.target.value)}
               />
             </label>
             <label className="input input-bordered flex items-center gap-2 mb-2">
@@ -268,6 +350,7 @@ const Post = () => {
                 type="text"
                 className="grow text-gray-600"
                 placeholder="Transmission"
+                onChange={(e) => setTransmission(e.target.value)}
               />
             </label>
             <label className="input input-bordered flex items-center gap-2 mb-2">
@@ -284,15 +367,22 @@ const Post = () => {
                 type="text"
                 className="grow text-gray-600"
                 placeholder="Price"
+                onChange={(e) => setPrice(e.target.value)}
               />
             </label>
-            <input
+            {image === null ? (
+              <p className="text-red-500">No image uploaded</p>
+            ) : (
+              <p className="text-green-500">Image is uploaded</p>
+            )}
+                      <input
               type="file"
               className="file-input file-input-bordered grow w-full sm:w-auto max-w-full mb-2"
+              onChange={handleImage}
             />
           </div>
           <div className="mt-5">
-            <button className="btn btn-primary w-full font-bold text-white">
+            <button className="btn btn-primary w-full font-bold text-white" onClick={add_car}>
               Confirm
             </button>
           </div>
@@ -311,7 +401,7 @@ const Post = () => {
           </form>
           {selectedCar && (
             <>
-              <h3 className="text-xl font-bold mt-3">| {selectedCar.name}</h3>
+              <h3 className="text-xl font-bold mt-3">| {selectedCar.car_name}</h3>
               <img
                 src={selectedCar.image}
                 alt={selectedCar.name}
@@ -324,6 +414,7 @@ const Post = () => {
                     type="text"
                     className="grow"
                     placeholder={selectedCar.category}
+                    disabled
                   />
                 </label>
                 <label className="input input-bordered flex items-center gap-2">
@@ -332,6 +423,7 @@ const Post = () => {
                     type="text"
                     className="grow"
                     placeholder={selectedCar.seats}
+                    disabled
                   />
                 </label>
                 <label className="input input-bordered flex items-center gap-2">
@@ -340,6 +432,7 @@ const Post = () => {
                     type="text"
                     className="grow"
                     placeholder={selectedCar.transmission}
+                    disabled
                   />
                 </label>
                 <label className="input input-bordered flex items-center gap-2">
@@ -348,15 +441,14 @@ const Post = () => {
                     type="text"
                     className="grow"
                     placeholder={selectedCar.price.toLocaleString()}
+                    disabled
                   />
                 </label>
               </div>
               <div className="flex justify-center mt-5 gap-3">
-                <button className="btn btn-error w-1/2 text-white font-bold">
+                <button className="btn btn-error w-1/2 text-white font-bold"
+                onClick={delete_car}>
                   Delete
-                </button>
-                <button className="btn btn-primary w-1/2 text-white font-bold">
-                  Save
                 </button>
               </div>
             </>

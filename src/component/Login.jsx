@@ -1,16 +1,58 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
+import supabase from "./supabaseClient";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
+  const navigate = useNavigate();
   const [password, showPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [email, setEmail] = useState('');
+  const [pass, setPass] = useState('');
+  const [userType, setUserType] = useState('customer');
 
   const handleLogin = async (event) => {
     event.preventDefault();
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 2000);
+    if(userType === 'customer'){
+      login_customer();
+     }
+     else{
+      login_seller();
+     }
+  };
+
+  const login_customer = async () => {
+    const { data } = await supabase
+    .from('Customer')
+    .select('*')
+    .eq('email', email)
+    .single();
+
+    if (data && data.password === pass && data.email === email) {
+    const name = data.customer_name;
+    sessionStorage.setItem('name', name);
+    navigate("/dashboard");
+    }
+    else {
+      alert('Wrong Credentials');
+    }
+  };
+
+  const login_seller = async () => {
+    const { data } = await supabase
+    .from('Seller')
+    .select('*')
+    .eq('email', email)
+    .single();
+
+    if (data && data.password === pass && data.email === email) {
+    const name = data.seller_name;
+    sessionStorage.setItem('name', name);
+    navigate("/reserve");
+    }
+    else {
+      alert('Wrong Credentials');
+    }
   };
 
   return (
@@ -45,6 +87,7 @@ const Login = () => {
                     type="text"
                     className="grow text-gray-600"
                     placeholder="Enter an email"
+                    value={email} onChange={(e) => setEmail(e.target.value)}
                   />
                 </label>
                 <label className="input input-bordered flex items-center gap-2 mb-2">
@@ -64,14 +107,16 @@ const Login = () => {
                     type={password ? "text" : "password"}
                     className="grow text-gray-600"
                     placeholder="Enter a password"
+                    value={pass} onChange={(e) => setPass(e.target.value)}
                   />
                 </label>
-                <select className="select select-bordered w-full mb-3 text-gray-500">
+                <select className="select select-bordered w-full mb-3 text-gray-500"
+                 value={userType} onChange={(e) => setUserType(e.target.value)}>
                   <option disabled selected>
                     Login as:
                   </option>
-                  <option>Customer</option>
-                  <option>Admin</option>
+                  <option value="customer">Customer</option>
+                  <option value="seller">Seller</option>
                 </select>
                 <div className="flex items-center justify-between mb-2">
                   <label className="flex items-center text-sm">

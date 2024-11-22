@@ -8,6 +8,7 @@ import Post from "./component/Admin/Post.jsx";
 import Profile from "./component/Admin/Profile.jsx";
 import Booking from "./component/Customer/Booking.jsx";
 import PaymentForm from "./component/Customer/PaymentForm.jsx";
+import CustomerTransaction from "./component/Customer/CustomerTransaction.jsx";
 
 const App = () => {
   return (
@@ -21,6 +22,7 @@ const App = () => {
       <Route path="/profile" element={<Profile />} />
       <Route path="/booking" element={<Booking />} />
       <Route path="/payment" element={<PaymentForm />} />
+      <Route path="/history" element={<CustomerTransaction />} />
     </Routes>
   );
 };

@@ -1,8 +1,14 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const PaymentForm = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [firstname, setFirstname] = useState('');
+  const [lastname, setLastName] = useState('');
+  const [number, setNumber] = useState('');
+  const [email, setEmail] = useState('');
+  const navigate = useNavigate();
 
   const openModal = () => setIsModalOpen(true);
 
@@ -11,6 +17,9 @@ const PaymentForm = () => {
   const openSuccessModal = () => setIsSuccessModalOpen(true);
 
   const closeSuccessModal = () => setIsSuccessModalOpen(false);
+  const redirect = () => {
+navigate("/history");
+  }
 
   return (
     <>
@@ -29,10 +38,7 @@ const PaymentForm = () => {
               {/* Currency Display */}
               <div className="text-center mb-3 mt-5">
                 <p className="text-xl font-semibold text-white">
-                  PHP :{" "}
-                  <span id="currencyAmount" className="text-green-500">
-                    00.00
-                  </span>
+                 ENTER PAYMENT DETAILS
                 </p>
               </div>
 
@@ -44,6 +50,7 @@ const PaymentForm = () => {
                     placeholder="Firstname"
                     className="input input-bordered w-full"
                     required
+                    onChange={(e) => setFirstname(e.target.value)}
                   />
                 </div>
                 <div className="mb-2">
@@ -53,6 +60,7 @@ const PaymentForm = () => {
                     placeholder="Lastname"
                     className="input input-bordered w-full"
                     required
+                    onChange={(e) => setLastName(e.target.value)}
                   />
                 </div>
                 <div className="mb-2">
@@ -62,6 +70,7 @@ const PaymentForm = () => {
                     placeholder="Account number"
                     className="input input-bordered w-full"
                     required
+                    onChange={(e) => setNumber(e.target.value)}
                   />
                 </div>
                 <div className="mb-5">
@@ -71,6 +80,7 @@ const PaymentForm = () => {
                     placeholder="Email"
                     className="input input-bordered w-full"
                     required
+                    onChange={(e) => setEmail(e.target.value)}
                   />
                 </div>
 
@@ -106,24 +116,22 @@ const PaymentForm = () => {
 
               <div className="space-y-4 mt-6">
                 <div className="flex justify-between">
-                  <span>Amount</span>
-                  <span>PHP : 5,000.00</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Firstname</span>
-                  <span>Dimplex Gahi</span>
+                  <span>{firstname}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Lastname</span>
-                  <span>Abarico</span>
+                  <span>{lastname}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Account number</span>
-                  <span>0000000000000000</span>
+                  <span>{number}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Email</span>
-                  <span>Dimplex143@gmail.com</span>
+                  <span>{email}</span>
                 </div>
               </div>
               <div className="modal-action justify-between mt-10">
@@ -167,7 +175,7 @@ const PaymentForm = () => {
               <div className="modal-action mt-10">
                 <button
                   className="btn btn-primary w-full font-bold"
-                  onClick={closeSuccessModal}
+                  onClick={redirect}
                 >
                   Close
                 </button>

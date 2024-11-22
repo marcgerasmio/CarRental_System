@@ -1,8 +1,11 @@
 import { FaSortAmountUp } from "react-icons/fa";
 import { NavLink } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect} from "react";
+import supabase from "../supabaseClient";
 
 const Transaction = () => {
+  const name = sessionStorage.getItem("name");
+  const [bookingData, setBookingData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [sortOrder, setSortOrder] = useState("asc"); // New state for sorting order
@@ -24,38 +27,58 @@ const Transaction = () => {
     { car: "Outlander", date: "1-01-24", time: "8:00 AM" },
   ];
 
-  const filteredReservations = reservations.filter((reservation) =>
-    reservation.car.toLowerCase().includes(searchQuery.toLowerCase())
+  const fetch_booking = async () => {
+    try {
+      const { error, data } = await supabase
+        .from('Booking')
+        .select('*')
+        .eq('seller_name', name)
+        .eq('status', 'Completed');
+
+      if (error) throw error;
+      setBookingData(data)
+    } catch (error) {
+      alert("An unexpected error occurred.");
+      console.error('Error during fetching history:', error.message);
+    }
+  };
+  const filteredReservations = bookingData.filter((bookingData) =>
+    bookingData.car_name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Sort function based on date
-  const sortedReservations = [...filteredReservations].sort((a, b) => {
-    const dateA = new Date(
-      `20${a.date.split("-")[2]}-${a.date.split("-")[0]}-${
-        a.date.split("-")[1]
-      }`
-    );
-    const dateB = new Date(
-      `20${b.date.split("-")[2]}-${b.date.split("-")[0]}-${
-        b.date.split("-")[1]
-      }`
-    );
+  // // Sort function based on date
+  // const sortedReservations = [...filteredReservations].sort((a, b) => {
+  //   const dateA = new Date(
+  //     `20${a.date.split("-")[2]}-${a.date.split("-")[0]}-${
+  //       a.date.split("-")[1]
+  //     }`
+  //   );
+  //   const dateB = new Date(
+  //     `20${b.date.split("-")[2]}-${b.date.split("-")[0]}-${
+  //       b.date.split("-")[1]
+  //     }`
+  //   );
 
-    if (sortOrder === "asc") {
-      return dateA - dateB; // ascending order
-    } else {
-      return dateB - dateA; // descending order
-    }
-  });
+  //   if (sortOrder === "asc") {
+  //     return dateA - dateB; // ascending order
+  //   } else {
+  //     return dateB - dateA; // descending order
+  //   }
+  // });
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
 
-  // Handle sorting toggle
-  const handleSort = () => {
-    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-  };
+  // // Handle sorting toggle
+  // const handleSort = () => {
+  //   setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+  // };
+
+  useEffect(() => {
+    fetch_booking();
+  }, []);
+
 
   return (
     <>
@@ -144,12 +167,12 @@ const Transaction = () => {
                 </svg>
               </label>
             </div>
-            <button
+            {/* <button
               className="shadow-md flex items-center justify-center w-11 h-11 border rounded bg-gray-50 border-gray-300 hover:bg-gray-100"
               onClick={handleSort} // On button click, toggle sort order
             >
               <FaSortAmountUp className="h-5 w-5 text-gray-700" />
-            </button>
+            </button> */}
           </div>
           <div className="overflow-x-auto shadow-xl border rounded-md font-mono">
             <table className="table">
@@ -162,21 +185,27 @@ const Transaction = () => {
                     Return Date
                   </th>
                   <th className="px-4 py-2 text-left text-sm font-bold text-gray-700">
-                    Time
+                    Customer Name
+                  </th>
+                  <th className="px-4 py-2 text-left text-sm font-bold text-gray-700">
+                   Rating
                   </th>
                 </tr>
               </thead>
               <tbody>
-                {sortedReservations.map((reservation, index) => (
+                {filteredReservations.map((reservation, index) => (
                   <tr key={index} className="bg-white">
                     <td className="px-4 py-2 text-sm font-medium text-gray-900">
-                      {reservation.car}
+                      {reservation.car_name}
                     </td>
                     <td className="px-4 py-2 text-sm text-gray-700">
-                      {reservation.date}
+                      {reservation.return_date}
                     </td>
                     <td className="px-4 py-2 text-sm text-gray-700">
-                      {reservation.time}
+                      {reservation.customer_name}
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-700">
+                      {reservation.rating}
                     </td>
                   </tr>
                 ))}
