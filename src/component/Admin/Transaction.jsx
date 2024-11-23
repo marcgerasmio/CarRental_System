@@ -187,9 +187,6 @@ const Transaction = () => {
                   <th className="px-4 py-2 text-left text-sm font-bold text-gray-700">
                     Customer Name
                   </th>
-                  <th className="px-4 py-2 text-left text-sm font-bold text-gray-700">
-                   Rating
-                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -203,9 +200,6 @@ const Transaction = () => {
                     </td>
                     <td className="px-4 py-2 text-sm text-gray-700">
                       {reservation.customer_name}
-                    </td>
-                    <td className="px-4 py-2 text-sm text-gray-700">
-                      {reservation.rating}
                     </td>
                   </tr>
                 ))}

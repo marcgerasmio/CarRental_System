@@ -18,12 +18,13 @@ const Dashboard = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [carData, setCarData] = useState([]);
   const [SelectedSeller, setSelectedSeller] = useState([]);
+  const [rating, setRating] = useState('');
 
   const customIcon = L.icon({
-    iconUrl: markerIcon, // Replace with your custom marker image path if applicable
+    iconUrl: markerIcon, 
     shadowUrl: markerShadow,
-    iconSize: [25, 41],  // Size of the icon
-    iconAnchor: [12, 41], // Position the marker relative to its point
+    iconSize: [25, 41],  
+    iconAnchor: [12, 41], 
   });
   
 
@@ -44,6 +45,7 @@ const Dashboard = () => {
   const handleMarkerClick = (seller_name) => {
     fetch_cardata(seller_name);
     fetch_sellerdata(seller_name);
+    fetch_rating(seller_name)
     const carModal = document.getElementById("carModal");
     carModal.showModal();
   };
@@ -63,6 +65,37 @@ const Dashboard = () => {
       console.error('Error during fetching history:', error.message);
     }
   };
+
+  const fetch_rating = async (seller_name) => {
+    try {
+      const { data, error } = await supabase
+        .from('Booking')
+        .select('rating')
+        .eq('seller_name', seller_name)
+        .neq('rating', 'null');
+  
+      if (error) throw error;
+  
+    
+      const ratings = data.map(item => parseInt(item.rating)); 
+      console.log(ratings)
+      const averageRating =
+        ratings.length > 0
+          ? ratings.reduce((sum, value) => sum + value, 0) / ratings.length
+          : 0;
+  
+      setRating(averageRating);
+      console.log("Average Rating:", averageRating);
+  
+      return { averageRating };
+    } catch (error) {
+      alert("An unexpected error occurred.");
+      console.error("Error during fetching ratings:", error.message);
+      return null;
+    }
+  };
+  
+  
 
   const fetch_sellerdata = async (seller_name) => {
     try {
@@ -228,7 +261,7 @@ const Dashboard = () => {
         </MapContainer>
       </div>
 
-      <Modal cars={carData} seller={SelectedSeller}/>
+      <Modal cars={carData} seller={SelectedSeller} rating={rating}/>
     </div>
   );
 };
