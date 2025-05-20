@@ -67,7 +67,6 @@ const handleRegister = () => {
       console.error('Error inserting data:', error);
       alert('Error inserting data');
     } else {
-      console.log('Data inserted successfully:', data);
       alert('Register Successful');
       navigate("/");
     }

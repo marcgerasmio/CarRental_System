@@ -48,6 +48,8 @@ const Login = () => {
     if (data && data.password === pass && data.email === email) {
     const name = data.seller_name;
     sessionStorage.setItem('name', name);
+    const id = data.id;
+    sessionStorage.setItem('id', id);
     navigate("/reserve");
     }
     else {

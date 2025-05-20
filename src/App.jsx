@@ -9,6 +9,9 @@ import Profile from "./component/Admin/Profile.jsx";
 import Booking from "./component/Customer/Booking.jsx";
 import PaymentForm from "./component/Customer/PaymentForm.jsx";
 import CustomerTransaction from "./component/Customer/CustomerTransaction.jsx";
+import AdminMap from "./component/Admin/AdminMap.jsx";
+import LocationTracker from "./component/LocationTracker.jsx";
+import Reports from "./component/Admin/Reports.jsx";
 
 const App = () => {
   return (
@@ -23,6 +26,9 @@ const App = () => {
       <Route path="/booking" element={<Booking />} />
       <Route path="/payment" element={<PaymentForm />} />
       <Route path="/history" element={<CustomerTransaction />} />
+      <Route path="/admin-map" element={<AdminMap />} />
+      <Route path="/location" element={<LocationTracker />} />
+      <Route path="/reports" element={<Reports />} />
     </Routes>
   );
 };

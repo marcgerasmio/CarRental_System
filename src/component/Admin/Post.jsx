@@ -1,6 +1,11 @@
 import { useState, useEffect} from "react";
 import { NavLink } from "react-router-dom";
 import supabase from "../supabaseClient";
+import { MdDriveFileRenameOutline } from "react-icons/md";
+import { BiCategoryAlt } from "react-icons/bi";
+import { MdOutlineAirlineSeatReclineNormal } from "react-icons/md";
+import { TbManualGearbox } from "react-icons/tb";
+import { FaRegMoneyBillAlt } from "react-icons/fa";
 
 const CarCard = ({ car, onClick }) => (
   <div
@@ -27,6 +32,7 @@ const Post = () => {
   const [cars, setCars] = useState([]);
 
   const name = sessionStorage.getItem("name");
+  const [id, setId] = useState('');
   const [category, setCategory] = useState('');
   const [car_name, setCarName] = useState('');
   const [seats, setSeats] = useState('');
@@ -137,6 +143,25 @@ const Post = () => {
       console.error('Unexpected error:', error.message);
     }
   };
+
+  const update_car = async () => {
+    try {
+      const { data } = await supabase
+        .from("Cars")
+        .update([
+          {
+            category,
+            seats,
+            transmission,
+            price,
+          },
+        ])
+        .eq("id", id);
+      window.location.reload();
+    } catch (error) {
+      alert("Error Saving Data.");
+    }
+  };
   
 
   const filteredReservations = cars.filter((car) =>
@@ -145,6 +170,11 @@ const Post = () => {
 
   const openModal = (car) => {
     setSelectedCar(car);
+    setId(car.id)
+    setCategory(car.category);
+    setSeats(car.seats);
+    setTransmission(car.transmission);
+    setPrice(car.price);
     const modal = document.getElementById("car_modal");
     if (modal) modal.showModal();
   };
@@ -206,6 +236,9 @@ const Post = () => {
           {isOpen && (
             <div className="absolute top-16 right-5 bg-base-100 rounded-lg shadow-lg p-3 z-50 border">
               <ul className="menu menu-compact space-y-3">
+              <NavLink to="/admin-map">
+                  <li className="text-lg">Vehicle Tracker</li>
+                </NavLink>
                 <NavLink to="/reserve">
                   <li className="text-lg">Reservation List</li>
                 </NavLink>
@@ -215,6 +248,9 @@ const Post = () => {
                 <NavLink to="/post">
                   <li className="text-lg">Unit Posted</li>
                 </NavLink>
+                <NavLink to="/reports">
+                      <li className="text-lg">Financial Reports</li>
+                      </NavLink>
                 <NavLink to="/profile">
                   <li className="text-lg">User Profile</li>
                 </NavLink>
@@ -286,15 +322,7 @@ const Post = () => {
           <h3 className="text-xl font-bold mt-3">| PROVIDE CAR DETAILS</h3>
           <div className="mt-4">
           <label className="input input-bordered flex items-center gap-2 mb-2">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 16 16"
-                fill="currentColor"
-                className="h-4"
-              >
-                <path d="M2.5 3A1.5 1.5 0 0 0 1 4.5v.793c.026.009.051.02.076.032L7.674 8.51c.206.1.446.1.652 0l6.598-3.185A.755.755 0 0 1 15 5.293V4.5A1.5 1.5 0 0 0 13.5 3h-11Z" />
-                <path d="M15 6.954 8.978 9.86a2.25 2.25 0 0 1-1.956 0L1 6.954V11.5A1.5 1.5 0 0 0 2.5 13h11a1.5 1.5 0 0 0 1.5-1.5V6.954Z" />
-              </svg>
+          <MdDriveFileRenameOutline size={22}/>
               <input
                 type="text"
                 className="grow text-gray-600"
@@ -303,15 +331,7 @@ const Post = () => {
               />
             </label>
             <label className="input input-bordered flex items-center gap-2 mb-2">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 16 16"
-                fill="currentColor"
-                className="h-4"
-              >
-                <path d="M2.5 3A1.5 1.5 0 0 0 1 4.5v.793c.026.009.051.02.076.032L7.674 8.51c.206.1.446.1.652 0l6.598-3.185A.755.755 0 0 1 15 5.293V4.5A1.5 1.5 0 0 0 13.5 3h-11Z" />
-                <path d="M15 6.954 8.978 9.86a2.25 2.25 0 0 1-1.956 0L1 6.954V11.5A1.5 1.5 0 0 0 2.5 13h11a1.5 1.5 0 0 0 1.5-1.5V6.954Z" />
-              </svg>
+            <BiCategoryAlt size={22} />
               <input
                 type="text"
                 className="grow text-gray-600"
@@ -320,15 +340,7 @@ const Post = () => {
               />
             </label>
             <label className="input input-bordered flex items-center gap-2 mb-2">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 16 16"
-                fill="currentColor"
-                className="h-4"
-              >
-                <path d="M2.5 3A1.5 1.5 0 0 0 1 4.5v.793c.026.009.051.02.076.032L7.674 8.51c.206.1.446.1.652 0l6.598-3.185A.755.755 0 0 1 15 5.293V4.5A1.5 1.5 0 0 0 13.5 3h-11Z" />
-                <path d="M15 6.954 8.978 9.86a2.25 2.25 0 0 1-1.956 0L1 6.954V11.5A1.5 1.5 0 0 0 2.5 13h11a1.5 1.5 0 0 0 1.5-1.5V6.954Z" />
-              </svg>
+            <MdOutlineAirlineSeatReclineNormal size={22}/>
               <input
                 type="text"
                 className="grow text-gray-600"
@@ -337,15 +349,7 @@ const Post = () => {
               />
             </label>
             <label className="input input-bordered flex items-center gap-2 mb-2">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 16 16"
-                fill="currentColor"
-                className="h-4"
-              >
-                <path d="M2.5 3A1.5 1.5 0 0 0 1 4.5v.793c.026.009.051.02.076.032L7.674 8.51c.206.1.446.1.652 0l6.598-3.185A.755.755 0 0 1 15 5.293V4.5A1.5 1.5 0 0 0 13.5 3h-11Z" />
-                <path d="M15 6.954 8.978 9.86a2.25 2.25 0 0 1-1.956 0L1 6.954V11.5A1.5 1.5 0 0 0 2.5 13h11a1.5 1.5 0 0 0 1.5-1.5V6.954Z" />
-              </svg>
+            <TbManualGearbox size={22} />
               <input
                 type="text"
                 className="grow text-gray-600"
@@ -354,15 +358,7 @@ const Post = () => {
               />
             </label>
             <label className="input input-bordered flex items-center gap-2 mb-2">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 16 16"
-                fill="currentColor"
-                className="h-4"
-              >
-                <path d="M2.5 3A1.5 1.5 0 0 0 1 4.5v.793c.026.009.051.02.076.032L7.674 8.51c.206.1.446.1.652 0l6.598-3.185A.755.755 0 0 1 15 5.293V4.5A1.5 1.5 0 0 0 13.5 3h-11Z" />
-                <path d="M15 6.954 8.978 9.86a2.25 2.25 0 0 1-1.956 0L1 6.954V11.5A1.5 1.5 0 0 0 2.5 13h11a1.5 1.5 0 0 0 1.5-1.5V6.954Z" />
-              </svg>
+            <FaRegMoneyBillAlt size={22}/>
               <input
                 type="text"
                 className="grow text-gray-600"
@@ -413,8 +409,8 @@ const Post = () => {
                   <input
                     type="text"
                     className="grow"
-                    placeholder={selectedCar.category}
-                    disabled
+                    value={category}  
+                    onChange={(e) => setCategory(e.target.value)}  
                   />
                 </label>
                 <label className="input input-bordered flex items-center gap-2">
@@ -422,8 +418,8 @@ const Post = () => {
                   <input
                     type="text"
                     className="grow"
-                    placeholder={selectedCar.seats}
-                    disabled
+                    value={seats}  // Bind value to the state
+                    onChange={(e) => setSeats(e.target.value)}  
                   />
                 </label>
                 <label className="input input-bordered flex items-center gap-2">
@@ -431,8 +427,8 @@ const Post = () => {
                   <input
                     type="text"
                     className="grow"
-                    placeholder={selectedCar.transmission}
-                    disabled
+                    value={transmission}  //
+                    onChange={(e) => setTransmission(e.target.value)}  
                   />
                 </label>
                 <label className="input input-bordered flex items-center gap-2">
@@ -440,8 +436,8 @@ const Post = () => {
                   <input
                     type="text"
                     className="grow"
-                    placeholder={selectedCar.price.toLocaleString()}
-                    disabled
+                    value={price}  
+                    onChange={(e) => setPrice(e.target.value)} 
                   />
                 </label>
               </div>
@@ -449,6 +445,10 @@ const Post = () => {
                 <button className="btn btn-error w-1/2 text-white font-bold"
                 onClick={delete_car}>
                   Delete
+                </button>
+                <button className="btn btn-success w-1/2 text-white font-bold"
+                 onClick={update_car}>
+                Save
                 </button>
               </div>
             </>

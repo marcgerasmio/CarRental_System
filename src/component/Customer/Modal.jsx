@@ -10,10 +10,11 @@ const Modal = ({ cars, seller, rating }) => {
           </button>
         </form>
         <div className="mb-5">
-          <p className="text-lg font-bold">{seller.seller_name}</p>
+          <h3 className="text-xl font-bold">{seller.seller_name}</h3>
           <p>Seller Rating: {rating}</p>
           <p>{seller.opens_at}</p>
           <p>{seller.tel_number}</p>
+          <p>{seller.address}</p>
         </div>
         <hr />
         <CarList cars={cars} />

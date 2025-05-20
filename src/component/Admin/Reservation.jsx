@@ -136,6 +136,9 @@ window.location.reload();
           {isOpen && (
             <div className="absolute top-16 right-5 bg-base-100 rounded-lg shadow-lg p-3 z-50 border">
               <ul className="menu menu-compact space-y-3">
+              <NavLink to="/admin-map">
+                  <li className="text-lg">Vehicle Tracker</li>
+                </NavLink>
                 <NavLink to="/reserve">
                   <li className="text-lg">Reservation List</li>
                 </NavLink>
@@ -145,6 +148,9 @@ window.location.reload();
                 <NavLink to="/post">
                   <li className="text-lg">Unit Posted</li>
                 </NavLink>
+                <NavLink to="/reports">
+                      <li className="text-lg">Financial Reports</li>
+                      </NavLink>
                 <NavLink to="/profile">
                   <li className="text-lg">User Profile</li>
                 </NavLink>

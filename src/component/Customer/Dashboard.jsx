@@ -9,9 +9,11 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+import { GrPowerReset } from "react-icons/gr";
 
 
 const Dashboard = () => {
+  const customerName = sessionStorage.getItem("name");
   const [sellerData, setSellerData] = useState([]);
   const [filtersellerData, setFilterSellerData] = useState([]);
   const [selectedModel, setSelectedModel] = useState("Select Model");
@@ -19,6 +21,8 @@ const Dashboard = () => {
   const [carData, setCarData] = useState([]);
   const [SelectedSeller, setSelectedSeller] = useState([]);
   const [rating, setRating] = useState('');
+  const [location, setLocation] = useState({ lat: null, lng: null });
+  const [error, setError] = useState(null);
 
   const customIcon = L.icon({
     iconUrl: markerIcon, 
@@ -61,7 +65,6 @@ const Dashboard = () => {
       if (error) throw error;
       setCarData(data);
     } catch (error) {
-      alert("An unexpected error occurred.");
       console.error('Error during fetching history:', error.message);
     }
   };
@@ -89,7 +92,6 @@ const Dashboard = () => {
   
       return { averageRating };
     } catch (error) {
-      alert("An unexpected error occurred.");
       console.error("Error during fetching ratings:", error.message);
       return null;
     }
@@ -108,7 +110,6 @@ const Dashboard = () => {
       if (error) throw error;
       setSelectedSeller(data);
     } catch (error) {
-      alert("An unexpected error occurred.");
       console.error('Error during fetching history:', error.message);
     }
   };
@@ -123,7 +124,6 @@ const Dashboard = () => {
       setSellerData(data);
       console.log(data);
     } catch (error) {
-      alert("An unexpected error occurred.");
       console.error('Error during fetching history:', error.message);
     }
   };
@@ -144,7 +144,6 @@ const Dashboard = () => {
         if (error) throw error;
         filteredSeller(data)
       } catch (error) {
-        alert("An unexpected error occurred.");
         console.error('Error during fetching history:', error.message);
       }
     };
@@ -162,7 +161,6 @@ const Dashboard = () => {
         setSellerData(data);
         console.log(data);
       } catch (error) {
-        alert("An unexpected error occurred.");
         console.error('Error during fetching sellers:', error.message);
       }
     };
@@ -172,11 +170,71 @@ const Dashboard = () => {
     }, []);
 
 
+    const reset = () => {
+   window.location.reload();
+    };
+
+    useEffect(() => {
+      const fetchAndUpdateLocation = async () => {
+        if (navigator.geolocation) {
+          const options = {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0
+          };
+          
+          navigator.geolocation.getCurrentPosition(
+            async (position) => {
+              const lat = position.coords.latitude;
+              const lng = position.coords.longitude;
+              setLocation({ lat, lng });
+              setError(null);
+              
+    
+              const { error: updateError } = await supabase
+                .from("Booking")
+                .update({
+                  longitude: lng,
+                  latitude: lat
+                })
+                .eq("customer_name", customerName)
+                .eq("status", "Active");
+                
+              if (updateError) {
+                console.error('Supabase Update Error:', updateError);
+              } else {
+                console.log('Location updated in Supabase');
+              }
+            },
+            (err) => {
+              console.error('Geolocation error:', err);
+              setError('Location access denied or unavailable.');
+            },
+            options
+          );
+        } else {
+          setError('Geolocation is not supported by this browser.');
+        }
+      };
+    
+      fetchAndUpdateLocation();
+      const interval = setInterval(fetchAndUpdateLocation, 20000);
+      return () => clearInterval(interval);
+    }, [customerName]); 
+
   return (
     <div className="flex flex-col h-screen font-mono">
       <nav className="bg-white shadow-md p-4 z-20 relative">
         <div className="flex items-center justify-between">
           <img src="logo.png" alt="Logo" className="h-14 w-14" />
+          <div>
+        
+          </div>
+          <button onClick={reset}
+        className="w-15 font-bold text-black btn-sm btn-error bg-white-500 rounded-lg"
+      >
+       <GrPowerReset  size={22} />
+      </button>
           <div className="w-48 flex gap-3">
             <NestedDropdown
               options={carOptions}

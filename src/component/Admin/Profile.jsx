@@ -6,22 +6,16 @@ import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
   const name = sessionStorage.getItem("name");
+  const id = sessionStorage.getItem("id");
   const [profileData, setProfileData] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
-
-  const [editData, setEditData] = useState({
-    opens_at: "",
-    tel_number: "",
-    longitude: "",
-    latitude: "",
-  });
-
-  const handleEditChange = (e) => {
-    const { name, value } = e.target;
-    setEditData((prev) => ({ ...prev, [name]: value }));
-  };
+  const [opens_at, setOpensAt] = useState('');
+  const [tel_number, setTelNumber] = useState('');
+  const [longitude, setLongitude] = useState('');
+  const [latitude, setLatitude] = useState('');
+  const [address, setAddress] = useState('');
 
 
   const updateProfile = async () => {
@@ -29,17 +23,18 @@ const Profile = () => {
       const { error } = await supabase
         .from("Seller")
         .update({
-          opens_at: editData.opens_at,
-          tel_number: editData.tel_number,
-          longitude: editData.longitude,
-          latitude: editData.latitude,
+       opens_at,
+       tel_number,
+       longitude,
+       latitude,
+       address
         })
-        .eq("seller_name", name);
+        .eq("id", id);
 
       if (error) throw error;
       alert("Profile updated successfully!");
       setIsModalOpen(false);
-      fetch_profile(); // Refresh the data
+      fetch_profile();
     } catch (error) {
       alert("Error updating profile.");
       console.error("Error during update:", error.message);
@@ -60,6 +55,11 @@ const Profile = () => {
 
       if (error) throw error;
       setProfileData(data);
+      setAddress(data.address)
+      setOpensAt(data.opens_at)
+      setTelNumber(data.tel_number)
+      setLongitude(data.longitude)
+      setLatitude(data.latitude)
       console.log(data);
     } catch (error) {
       alert("An unexpected error occurred.");
@@ -115,6 +115,9 @@ const Profile = () => {
           {isOpen && (
             <div className="absolute top-16 right-5 bg-base-100 rounded-lg shadow-lg p-3 z-50 border">
               <ul className="menu menu-compact space-y-3">
+              <NavLink to="/admin-map">
+                  <li className="text-lg">Vehicle Tracker</li>
+                </NavLink>
                 <NavLink to="/reserve">
                   <li className="text-lg">Reservation List</li>
                 </NavLink>
@@ -123,6 +126,9 @@ const Profile = () => {
                 </NavLink>
                 <NavLink to="/post">
                   <li className="text-lg">Unit Posted</li>
+                </NavLink>
+                <NavLink to="/reports">
+                <li className="text-lg">Financial Reports</li>
                 </NavLink>
                 <NavLink to="/profile">
                   <li className="text-lg">User Profile</li>
@@ -177,6 +183,10 @@ const Profile = () => {
                 Latitude :
                 <input type="text" className="grow" placeholder={profileData.latitude} disabled />
               </label>
+              <label className="input input-bordered flex items-center gap-2">
+                Address :
+                <input type="text" className="grow" placeholder={profileData.address} disabled />
+              </label>
             </div>
             <div className="flex items-center space-x-3">
             <button
@@ -203,33 +213,41 @@ const Profile = () => {
               <input
                 type="text"
                 name="opens_at"
-                value={editData.opens_at}
-                onChange={handleEditChange}
+                value={opens_at}  
+                onChange={(e) => setOpensAt(e.target.value)} 
                 placeholder="Opens At"
                 className="input input-bordered w-full"
               />
               <input
                 type="text"
                 name="tel_number"
-                value={editData.tel_number}
-                onChange={handleEditChange}
+                value={tel_number}  
+                onChange={(e) => setTelNumber(e.target.value)} 
                 placeholder="TEL NO."
                 className="input input-bordered w-full"
               />
               <input
                 type="text"
                 name="latitude"
-                value={editData.latitude}
-                onChange={handleEditChange}
+                value={latitude}  
+                onChange={(e) => setLatitude(e.target.value)} 
                 placeholder="Latitude"
                 className="input input-bordered w-full"
               />
               <input
                 type="text"
                 name="longitude"
-                value={editData.longitude}
-                onChange={handleEditChange}
+                value={longitude}  
+                onChange={(e) => setLongitude(e.target.value)} 
                 placeholder="Longitude"
+                className="input input-bordered w-full"
+              />
+                   <input
+                type="text"
+                name="address"
+                value={address}  
+                onChange={(e) => setAddress(e.target.value)} 
+                placeholder="Address"
                 className="input input-bordered w-full"
               />
             </div>

@@ -117,6 +117,9 @@ const Transaction = () => {
           {isOpen && (
             <div className="absolute top-16 right-5 bg-base-100 rounded-lg shadow-lg p-3 z-50 border">
               <ul className="menu menu-compact space-y-3">
+              <NavLink to="/admin-map">
+                  <li className="text-lg">Vehicle Tracker</li>
+                </NavLink>
                 <NavLink to="/reserve">
                   <li className="text-lg">Reservation List</li>
                 </NavLink>

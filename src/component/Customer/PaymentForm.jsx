@@ -8,6 +8,10 @@ const PaymentForm = () => {
   const [lastname, setLastName] = useState('');
   const [number, setNumber] = useState('');
   const [email, setEmail] = useState('');
+  const number_of_days = sessionStorage.getItem("number_of_days");
+  const price = sessionStorage.getItem("price");
+  const total_payment = sessionStorage.getItem("total_payment");
+
   const navigate = useNavigate();
 
   const openModal = () => setIsModalOpen(true);
@@ -110,7 +114,7 @@ navigate("/history");
           >
             <div className="modal-box">
               <h2 className="text-2xl font-semibold text-center mb-3">
-                Payment Information
+                Invoice Details
               </h2>
               <hr />
 
@@ -132,6 +136,19 @@ navigate("/history");
                 <div className="flex justify-between">
                   <span>Email</span>
                   <span>{email}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Rental Duration</span>
+                  <span>{number_of_days} {number_of_days === 1 ? 'day' : 'days'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Car Rental Price</span>
+                  <span>₱{price}</span>
+                </div>
+                <hr/>
+                <div className="flex justify-between font-bold">
+                  <span>Grand Total</span>
+                  <span>₱{total_payment}</span>
                 </div>
               </div>
               <div className="modal-action justify-between mt-10">
